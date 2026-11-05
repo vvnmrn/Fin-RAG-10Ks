@@ -4,18 +4,23 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import warnings
 from pathlib import Path
 
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag, XMLParsedAsHTMLWarning
 
 import config
+
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 ITEM_RE = re.compile(r"^\s*item\s+(\d{1,2}[ab]?)\b", re.I)
 PAGE_BREAK_RE = re.compile(r"page-break-(before|after)\s*:\s*always", re.I)
 NOISE_RE = re.compile(r"(page\s*)?\d{1,3}|table of contents", re.I)
+FOOTNOTE_RE = re.compile(r"\([a-z]\)")
+FOOTER_RE = re.compile(r"form 10-k", re.I)
 BLOCK_NAMES = {"p", "div", "li", "ul", "ol", "table", "h1", "h2", "h3", "h4", "h5", "h6"}
 TEXT_NAMES = {"p", "div", "li", "h1", "h2", "h3", "h4", "h5", "h6"}
-SYMBOLS_PREFIX = {"$", "($", "(", "€", "£"}
+SYMBOLS_PREFIX = {"$", "($", "(", "\u20ac", "\u00a3"}
 SYMBOLS_SUFFIX = {")", "%", ")%", "bps"}
 
 
@@ -23,14 +28,32 @@ def norm(text: str) -> str:
     return " ".join(text.replace("\xa0", " ").split())
 
 
+_FIXES = [
+    (re.compile(r"\(\s+"), "("),
+    (re.compile(r"\s+\)"), ")"),
+    (re.compile(r"\$\s+(?=[\d(])"), "$"),
+    (re.compile(r"\s+%"), "%"),
+    (re.compile(r"\s+,"), ","),
+]
+
+
+def clean_cell(text: str) -> str:
+    text = norm(text)
+    for pat, rep in _FIXES:
+        text = pat.sub(rep, text)
+    return text
+
+
 def merge_cells(cells: list[str]) -> list[str]:
-    """Drop empty cells and glue '$' / ')' / '%' fragments onto their numbers."""
+    """Drop empty cells and glue '$' / ')' / '%' fragments and footnote markers onto their numbers."""
     out: list[str] = []
     for c in cells:
         if not c:
             continue
         if out and c in SYMBOLS_SUFFIX:
             out[-1] += c
+        elif out and FOOTNOTE_RE.fullmatch(c):
+            out[-1] += " " + c
         elif out and out[-1] in SYMBOLS_PREFIX:
             out[-1] += c
         else:
@@ -41,10 +64,15 @@ def merge_cells(cells: list[str]) -> list[str]:
 def table_rows(table: Tag) -> list[list[str]]:
     rows = []
     for tr in table.find_all("tr"):
-        cells = merge_cells([norm(td.get_text(" ")) for td in tr.find_all(["td", "th"])])
+        cells = merge_cells([clean_cell(td.get_text(" ")) for td in tr.find_all(["td", "th"])])
         if cells:
             rows.append(cells)
     return rows
+
+
+def is_page_footer(rows: list[list[str]]) -> bool:
+    flat = " ".join(" ".join(r) for r in rows)
+    return len(rows) <= 2 and len(flat) < 80 and bool(FOOTER_RE.search(flat))
 
 
 def iter_blocks(root: Tag):
@@ -89,6 +117,7 @@ def build_chunks(
     doc_id: str,
     max_chars: int = config.MAX_TEXT_CHARS,
     max_rows: int = config.MAX_TABLE_ROWS,
+    label_sections: bool = True,
 ) -> list[dict]:
     soup = BeautifulSoup(html, "lxml")
     for tag in soup.find_all(["script", "style", "ix:header"]):
@@ -125,13 +154,13 @@ def build_chunks(
             if not text or NOISE_RE.fullmatch(text):
                 continue
             m = ITEM_RE.match(text)
-            if m and len(text) < 150:
+            if m and len(text) < 150 and label_sections:
                 flush()
                 section = f"Item {m.group(1).upper()}"
             add_text(text)
         else:
             rows = table_rows(el)
-            if not rows:
+            if not rows or is_page_footer(rows):
                 continue
             if all(len(r) == 1 for r in rows):  # layout table holding prose
                 for r in rows:

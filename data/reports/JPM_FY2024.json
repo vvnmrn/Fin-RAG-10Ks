@@ -1,0 +1,101 @@
+{
+  "doc_id": "JPM_FY2024",
+  "parsed": {
+    "checks": [
+      {
+        "detail": "1254 chunks (need 300)",
+        "name": "min_chunks",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "355 table chunks",
+        "name": "min_table_chunks",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "",
+        "name": "unique_chunk_ids",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "4 near-empty",
+        "name": "no_near_empty_text",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "0 over 1500 chars",
+        "name": "text_chunk_size_cap",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "0 single-column tables",
+        "name": "tables_have_columns",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "99% of table chunks",
+        "name": "tables_contain_numbers",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "largest section holds 0%",
+        "name": "no_dominant_section",
+        "passed": true,
+        "severity": "error"
+      }
+    ],
+    "n_errors": 0,
+    "n_warnings": 0,
+    "ok": true
+  },
+  "raw": {
+    "checks": [
+      {
+        "detail": "C:\\Users\\Dell\\OneDrive\\Documents\\GitHub\\RAG-larpmaxxer\\data\\raw\\JPM_FY2024.htm",
+        "name": "file_exists",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "12849295 bytes",
+        "name": "min_size",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "",
+        "name": "not_error_page",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "missing '10-K' or 'annual report'",
+        "name": "looks_like_10k",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "",
+        "name": "in_manifest",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "",
+        "name": "sha256_matches",
+        "passed": true,
+        "severity": "error"
+      }
+    ],
+    "n_errors": 0,
+    "n_warnings": 0,
+    "ok": true
+  }
+}

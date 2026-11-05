@@ -35,6 +35,7 @@ def main(argv=None) -> int:
 
     failed = False
     for t in args.tickers:
+        labels = config.COMPANIES[t].get("label_sections", True)
         for fy in args.years:
             doc_id = f"{t}_FY{fy}"
             raw_path = config.RAW / f"{doc_id}.htm"
@@ -45,19 +46,26 @@ def main(argv=None) -> int:
                 report["raw"] = raw_sum
                 if not raw_sum["ok"]:
                     print(f"[{doc_id}] RAW GATE FAILED, halting this document")
+                    for c in raw_sum["checks"]:
+                        if not c["passed"]:
+                            print(f"  {c['name']}: {c['detail']}")
                     failed = True
                     _write_report(doc_id, report)
                     continue
 
             out = config.PARSED / f"{doc_id}.jsonl"
             if run("parse"):
-                chunks = parse.build_chunks(raw_path.read_text(encoding="utf-8", errors="ignore"), doc_id)
+                chunks = parse.build_chunks(
+                    raw_path.read_text(encoding="utf-8", errors="ignore"),
+                    doc_id,
+                    label_sections=labels,
+                )
                 parse.write_jsonl(chunks, out)
                 print(f"[{doc_id}] parsed {len(chunks)} chunks")
 
             if run("validate") and out.exists():
                 chunks = parse.read_jsonl(out)
-                parsed_sum = validate.summarize(validate.validate_parsed(chunks))
+                parsed_sum = validate.summarize(validate.validate_parsed(chunks, expect_labels=labels))
                 report["parsed"] = parsed_sum
                 for c in parsed_sum["checks"]:
                     if not c["passed"]:

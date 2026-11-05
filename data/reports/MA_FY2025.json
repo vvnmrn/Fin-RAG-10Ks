@@ -1,0 +1,113 @@
+{
+  "doc_id": "MA_FY2025",
+  "parsed": {
+    "checks": [
+      {
+        "detail": "590 chunks (need 300)",
+        "name": "min_chunks",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "124 table chunks",
+        "name": "min_table_chunks",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "",
+        "name": "unique_chunk_ids",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "5 near-empty",
+        "name": "no_near_empty_text",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "0 over 1500 chars",
+        "name": "text_chunk_size_cap",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "1 single-column tables",
+        "name": "tables_have_columns",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "95% of table chunks",
+        "name": "tables_contain_numbers",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "largest section holds 43%",
+        "name": "no_dominant_section",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "3% chunks unlabeled",
+        "name": "section_labels",
+        "passed": true,
+        "severity": "warning"
+      },
+      {
+        "detail": "['Item 1', 'Item 10', 'Item 11', 'Item 12', 'Item 13', 'Item 14', 'Item 15', 'Item 16']",
+        "name": "item_headings_found",
+        "passed": true,
+        "severity": "warning"
+      }
+    ],
+    "n_errors": 0,
+    "n_warnings": 0,
+    "ok": true
+  },
+  "raw": {
+    "checks": [
+      {
+        "detail": "C:\\Users\\Dell\\OneDrive\\Documents\\GitHub\\RAG-larpmaxxer\\data\\raw\\MA_FY2025.htm",
+        "name": "file_exists",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "3067792 bytes",
+        "name": "min_size",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "",
+        "name": "not_error_page",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "missing '10-K' or 'annual report'",
+        "name": "looks_like_10k",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "",
+        "name": "in_manifest",
+        "passed": true,
+        "severity": "error"
+      },
+      {
+        "detail": "",
+        "name": "sha256_matches",
+        "passed": true,
+        "severity": "error"
+      }
+    ],
+    "n_errors": 0,
+    "n_warnings": 0,
+    "ok": true
+  }
+}
